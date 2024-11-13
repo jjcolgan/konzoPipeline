@@ -164,7 +164,7 @@ rule index_bam_konzo:
 rule genContigs:
     resources:
         cpus_per_task=4,
-        mem_mb=50000,
+        mem_mb=25000,
         tasks=1,
         time='10h',
         nodes=1,
