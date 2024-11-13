@@ -29,11 +29,11 @@ rule simplifyContigs:
         'anvio-dev-no-update'
     shell:
         """
-        anvi-script_Reformat-fasta {input.fasta} \
+        anvi-script-reformat-fasta {input.fasta} \
         -o {output.reformattted} \
         --simplify-names \
         -l 750 \
-        -_Report-file {output.report} > {log.out} 2> {log.err}
+        --report-file {output.report} > {log.out} 2> {log.err}
         """
 rule makeIndex:
     resources:
@@ -49,23 +49,27 @@ rule makeIndex:
     output:
         indexLog='03_indexes/index{sample}.log',
         index = '03_indexes/{sample}.1.bt2'
+    params:
+        index='03_indexes/{sample}'
     threads: 4
     shell:
         """
-        bowtie2-build {input.fasta} --large-index 03_indexes/{sample} --threads {threads} > {output.indexLog}
+        bowtie2-build {input.fasta} 03_indexes/{params.index} --threads {threads} > {output.indexLog}
         """
 
 rule align:
     input:
         R1='/project/blekhman/jjcolgan/mgDenovoAssembly/populationAssembly/01_QC/{sample}_R1_dehosted.fastq.gz',
         R2='/project/blekhman/jjcolgan/mgDenovoAssembly/populationAssembly/01_QC/{sample}_R2_dehosted.fastq.gz',
+        index = '03_indexes/{sample}.1.bt2'
     log:
         bowtieAlignment='04_MG_ALIGNED/logs/{sample}Alignment.err',
         bowtieAlignmentOut='04_MG_ALIGNED/logs/{sample}Alignment.out'
     output:
         sam=temp('04_MG_ALIGNED/{sample},[\d\w]+_[\d\wy]+}MgAligned.sam'),
         bam='04_MG_ALIGNED/{sample},[\d\w]+_[\d\wy]+}MgAligned.bam'
-
+    params:
+        index = '03_indexes/{sample}'
     threads: 4
     resources:
         cpus_per_task=4,
@@ -79,7 +83,7 @@ rule align:
         'biobakery3'
     shell:
         """
-        bowtie2 -x 02_ASSEMBLY/kinsasha/kinsasha -1 {input.R1} -2 {input.R2} \
+        bowtie2 -x {params.index} -1 {input.R1} -2 {input.R2} \
         -p {threads} -S {output.sam}  --very-sensitive > {log.bowtieAlignment} \
         2> {log.bowtieAlignmentOut}
         samtools view -bS {output.sam} > {output.bam}
