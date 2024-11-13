@@ -50,7 +50,7 @@ rule makeIndex:
         indexLog='03_indexes/index{sample}.log',
         index = '03_indexes/{sample}.1.bt2'
     params:
-        index='03_indexes/{sample}'
+        index='{sample}'
     threads: 4
     shell:
         """
