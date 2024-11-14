@@ -101,7 +101,7 @@ rule filter:
     conda:
         'biobakery3'
     input:
-        bam=temporary('04_MG_ALIGNED/{sample},[\d\w]+_[\d\wy]+}MgAligned.bam')
+        bam=temporary('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.bam')
     output:
         filtered='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}mapped.bam'
     log:
@@ -125,7 +125,7 @@ rule sort:
     conda:
         'biobakery3'
     input:
-        filtered=temp('04_MG_ALIGNED/{sample}mapped.bam')
+        filtered=temp('04_MG_ALIGNED/{sample,mapped.bam')
     output:
         sorted=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam')
     log:
