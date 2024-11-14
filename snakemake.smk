@@ -66,8 +66,8 @@ rule align:
         bowtieAlignment='04_MG_ALIGNED/logs/{sample}Alignment.err',
         bowtieAlignmentOut='04_MG_ALIGNED/logs/{sample}Alignment.out'
     output:
-        sam=temp('04_MG_ALIGNED/{sample},[\d\w]+_[\d\wy]+}MgAligned.sam'),
-        bam='04_MG_ALIGNED/{sample},[\d\w]+_[\d\wy]+}MgAligned.bam'
+        sam=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.sam'),
+        bam='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.bam'
     params:
         index = '03_indexes/{sample}'
     threads: 4
