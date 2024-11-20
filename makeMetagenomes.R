@@ -1,0 +1,8 @@
+## Makes anvio metagenomes file required for downstream processing (i.e. estimate taxonomy, estimate metabolism)
+input<-read.table(file = 'samples.txt',header = FALSE,sep = '\t')
+sample<-paste0('sample', input$V1)
+contigs <- paste0('05_CONTIGS_DB/',input$V1,'/contigs.db')
+profile <- paste0('06_MG_PROFILES/',input$V1,'/PROFILE.db')
+out<-cbind(sample, contigs, profile)
+colnames(out) <- c('name', 'contigs_db_path','profile_db_path')
+write.table(out, 'metagenomes.tsv', sep = '\t',quote = FALSE,row.names = FALSE)
