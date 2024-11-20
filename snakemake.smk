@@ -6,7 +6,8 @@ samples = samples[:-1]
 rule all:
     input:
         expand('06_MG_PROFILES/{sample}/PROFILE.db', sample = samples),
-        expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples)
+        expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
+        expand(''05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
 
 rule simplifyContigs:
     input:
