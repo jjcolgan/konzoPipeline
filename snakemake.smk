@@ -217,7 +217,7 @@ rule annotate:
         anvi-run-hmms -c {input.contigs_db} \
         -T {threads} \
         --just-do-it \
-        > {log.hmmsLog} 2> {sampleHmms}
+        > {log.hmmsLog} 2> {log.sampleHmms}
         
         anvi-run-kegg-kofams -c {input.contigs_db} \
         -T {threads} \
