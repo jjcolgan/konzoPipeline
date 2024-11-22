@@ -363,9 +363,9 @@ rule checkAnnotations:
         account='pi-blekhman'
     input:
         pfams = '05_CONTIGS_DB/{sample}/pfams.done',
-        kegg = ,
-        scg ='',
-        hmm = '',
+        kegg = '05_CONTIGS_DB/{sample}/kegg.done',
+        scg ='05_CONTIGS_DB/{sample}/scg.done',
+        hmm = '05_CONTIGS_DB/{sample}/hmms.done',
     output:
         '05_CONTIGS_DB/{sample}/annotations.done'
 
