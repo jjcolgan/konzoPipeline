@@ -7,7 +7,8 @@ rule all:
     input:
         expand('06_MG_PROFILES/{sample}/PROFILE.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
-        expand(''05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
+        expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
+        expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
 
 rule simplifyContigs:
     input:
@@ -338,7 +339,6 @@ rule profile:
         indexedDone = '04_MG_ALIGNED/{sample}_index.done',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db',
         bam='04_MG_ALIGNED/{sample}Sorted.bam'
-
     log:
         out='06_MG_PROFILES/{sample}Profile.log',
         error='06_MG_PROFILES/{sample}Profile.err'
@@ -354,3 +354,19 @@ rule profile:
         -T {threads} \
         -o {params.dir} --force-overwrite > {log.out} 2> {log.error}
         """
+rule checkAnnotations:
+    resources:
+        cpus_per_task=1,
+        mem_mb=2000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    input:
+        pfams = '05_CONTIGS_DB/{sample}/pfams.done',
+        kegg = ,
+        scg ='',
+        hmm = '',
+    output:
+        '05_CONTIGS_DB/{sample}/annotations.done'
+
