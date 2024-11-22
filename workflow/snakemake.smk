@@ -9,7 +9,6 @@ rule all:
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
-
 rule simplifyContigs:
     input:
         fasta='02_ASSEMBLY/{sample}/final.contigs.fa'
@@ -109,7 +108,7 @@ rule filter:
     log:
         filterLog='04_MG_ALIGNED/logs/{sample,[\d\w]+_[\d\wy]+}Filter.log',
         filterError='04_MG_ALIGNED/logs/{sample,[\d\w]+_[\d\wy]+}Filter.err'
-    threads: 1
+
     shell:
         """
         samtools view -b -F 4 -q 1 {input.bam} -o {output.filtered} > {log.filterLog} 2> {log.filterError}
@@ -127,7 +126,7 @@ rule sort:
     conda:
         'biobakery3'
     input:
-        filtered=temp('04_MG_ALIGNED/{sample,mapped.bam')
+        filtered=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}mapped.bam')
     output:
         sorted=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam')
     log:
