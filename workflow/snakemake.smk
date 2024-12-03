@@ -8,9 +8,12 @@ rule all:
         expand('06_MG_PROFILES/{sample}/PROFILE.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
-        expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
+        expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
+        'metagenomes.tsv'
 
 rule makeMeteGenomesFile:
+    envmodules:
+        'R'
     resources:
         cpus_per_task=1,
         mem_mb=2000,
@@ -24,7 +27,6 @@ rule makeMeteGenomesFile:
         metagenomesFile = 'metagenomes.tsv'
     shell:
         """
-        module load R 
         Rscript konzoPipeline/scripts/makeMetagenomes.R
         """
 
@@ -400,6 +402,9 @@ rule exportContigCoverages:
         nodes=1,
         account='pi-blekhman'
 
+    conda:
+        'anvio-dev-no-update'
+
     input:
         profile_db = '06_MG_PROFILES/{sample}/PROFILE.db',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
@@ -408,7 +413,7 @@ rule exportContigCoverages:
 
     output:
         coverages = '09_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
-        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa',
+        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     log:
         err='09_COVERAGES/{sample}.err',
         out='09_COVERAGES/{sample}.out'
@@ -420,6 +425,32 @@ rule exportContigCoverages:
         -o {params.dir} \
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
         """
-
-
-
+rule metabat2:
+    resources:
+        cpus_per_task = 10,
+        mem_mb = 50000,
+        tasks = 1,
+        time = '15h',
+        nodes = 1,
+        account = 'pi-blekhman'
+    conda:
+        'metabat2'
+    input:
+        coverages = '09_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa'
+    output:
+        done = '10_BINNING/{sample}/minCotig1500/binning.done'
+    params:
+        dir = '10_BINNING/{sample}/minCotig1500'
+    log:
+        out = '10_BINNING/{sample}/minCotig1500/binning.out',
+        err= '10_BINNING/{sample}/minCotig1500/binning.err'
+    shell:
+        """
+        metabat2 -i {input.contigs} \
+        --cvExt -a {input.coverages} \
+        -t 10 -m 1500 --saveCls --outFile 10_BINNING/konzo/minContig1500/bin \
+        > {log.out} 2> {log.err}
+        
+        touch {output.done}
+        """
