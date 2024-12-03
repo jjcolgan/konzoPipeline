@@ -11,7 +11,7 @@ rule all:
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         'metagenomes.tsv'
 
-rule makeMeteGenomesFile:
+rule makeMetaGenomesFile:
     envmodules:
         'R'
     resources:
