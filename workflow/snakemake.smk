@@ -9,6 +9,25 @@ rule all:
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples)
+
+rule makeMeteGenomesFile:
+    resources:
+        cpus_per_task=1,
+        mem_mb=2000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    input:
+        samples = 'samples.txt'
+    output:
+        metagenomesFile = 'metagenomes.tsv'
+    shell:
+        """
+        module load R 
+        Rscript konzoPipeline/scripts/makeMetagenomes.R
+        """
+
 rule simplifyContigs:
     input:
         fasta='02_ASSEMBLY/{sample}/final.contigs.fa'
