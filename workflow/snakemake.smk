@@ -235,7 +235,7 @@ rule kegg:
         anvi-run-kegg-kofams -c {input.contigs_db} \
         -T {threads} \
         --just-do-it \
-        --kegg-data-dir kegg \
+        --kegg-data-dir /project/blekhman/shared/anvioDbs/kegg \
         > {log.keggOut}
         2> {log.keggOut}
         touch {output}
@@ -264,7 +264,7 @@ rule scg:
         """
         anvi-run-scg-taxonomy -c {input.contigs_db} \
         -T {threads} \
-        --scgs-taxonomy-data-dir /project/blekhman/shared/anvioDbs/scg \
+        --scgs-taxonomy-data-dir /project/blekhman/shared/anvioDbs/scgs \
         > {log.scgOut} 2> {log.scgErr}
         touch {output}
         """
@@ -311,7 +311,7 @@ rule cazymes:
         4
     log:
         cazymesout='05_CONTIGS_DB/{sample}/caz.log',
-        cazymesErr='05_CONTIGS_DB/{sample}/caz.log'
+        cazymesErr='05_CONTIGS_DB/{sample}/caz.err'
     input:
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
     output:
