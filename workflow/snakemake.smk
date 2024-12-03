@@ -368,4 +368,39 @@ rule checkAnnotations:
         hmm = '05_CONTIGS_DB/{sample}/hmms.done',
     output:
         '05_CONTIGS_DB/{sample}/annotations.done'
+    shell:
+        """
+        touch {output}
+        """
+rule exportContigCoverages:
+    resources:
+        cpus_per_task=10,
+        mem_mb=50000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+
+    input:
+        profile_db = '06_MG_PROFILES/{sample}/PROFILE.db',
+        contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
+    params:
+        dir = '09_COVERAGES/{sample}'
+
+    output:
+        coverages = '09_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa',
+    log:
+        err='09_COVERAGES/{sample}.err',
+        out='09_COVERAGES/{sample}.out'
+    shell:
+        """
+        anvi-export-splits-and-coverages \
+        -c 06_CONTIGS_DB/{input.contigs_db}/contigs.db \
+        -p 08_MERGED_PROFILES/{input.profile_db}/PROFILE.db \
+        -o {params.dir} \
+        --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
+        """
+
+
 
