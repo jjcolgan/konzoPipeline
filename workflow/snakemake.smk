@@ -1,3 +1,12 @@
+''''
+To dos:
+    - Add checkm2 QC
+    - Add GUNC QC
+    - Write R script to generate binning report
+    - Write R script to generage contig report
+    - Export SCG taxonomy 
+'''
+
 input = open('samples.txt', 'r')
 samples = input.read()
 samples = samples.split('\n')
@@ -235,7 +244,7 @@ rule hmms:
 rule kegg:
     resources:
         mem_mb=25000,
-        tasks=4,
+        tasks=8,
         time='10h',
         nodes=1,
         account='pi-blekhman',
@@ -243,7 +252,7 @@ rule kegg:
     conda:
         'anvio-dev-no-update'
     threads:
-        4
+        8
     log:
         keggOut = '05_CONTIGS_DB/{sample}/kegg.log',
         keggErr = '05_CONTIGS_DB/{sample}/kegg.err',
@@ -265,7 +274,7 @@ rule kegg:
 rule scg:
     resources:
         mem_mb=25000,
-        tasks=4,
+        tasks=8,
         time='10h',
         nodes=1,
         account='pi-blekhman',
@@ -273,7 +282,7 @@ rule scg:
     conda:
         'anvio-dev-no-update'
     threads:
-        4
+        8
     log:
         scgOut = '05_CONTIGS_DB/{sample}/scg.log',
         scgErr='05_CONTIGS_DB/{sample}/scg.err',
@@ -293,7 +302,7 @@ rule scg:
 rule pfams:
     resources:
         mem_mb=25000,
-        tasks=4,
+        tasks=8,
         time='10h',
         nodes=1,
         account='pi-blekhman',
@@ -301,7 +310,7 @@ rule pfams:
     conda:
         'anvio-dev-no-update'
     threads:
-        4
+        8
     log:
         pfamsOut='05_CONTIGS_DB/{sample}/pfams.log',
         pfamsErr='05_CONTIGS_DB/{sample}/pfams.err',
@@ -321,7 +330,7 @@ rule pfams:
 rule cazymes:
     resources:
         mem_mb=25000,
-        tasks=4,
+        tasks=8,
         time='10h',
         nodes=1,
         account='pi-blekhman',
@@ -329,7 +338,7 @@ rule cazymes:
     conda:
         'anvio-dev-no-update'
     threads:
-        4
+        8
     log:
         cazymesout='05_CONTIGS_DB/{sample}/caz.log',
         cazymesErr='05_CONTIGS_DB/{sample}/caz.err'
