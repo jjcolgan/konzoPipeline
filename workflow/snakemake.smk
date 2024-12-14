@@ -421,16 +421,16 @@ rule exportContigCoverages:
         dir = '09_COVERAGES/{sample}'
 
     output:
-        coverages = '09_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
-        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa'
+        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     log:
-        err='09_COVERAGES/{sample}.err',
-        out='09_COVERAGES/{sample}.out'
+        err='07_COVERAGES/{sample}.err',
+        out='07_COVERAGES/{sample}.out'
     shell:
         """
         anvi-export-splits-and-coverages \
-        -c 06_CONTIGS_DB/{input.contigs_db}/contigs.db \
-        -p 08_MERGED_PROFILES/{input.profile_db}/PROFILE.db \
+        -c {input.contigs_db} \
+        -p {input.profile_db} \
         -o {params.dir} \
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
         """
@@ -445,20 +445,20 @@ rule metabat2:
     conda:
         'metabat2'
     input:
-        coverages = '09_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
-        contigs = '09_COVERAGES/{sample}/{sample}-CONTIGS.fa'
+        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     output:
-        done = '10_BINNING/{sample}/minCotig1500/binning.done'
+        done = '08_BINNING/{sample}/minCotig1500/binning.done'
     params:
-        dir = '10_BINNING/{sample}/minCotig1500'
+        dir = '08_BINNING/{sample}/minContig1500/bin'
     log:
-        out = '10_BINNING/{sample}/minCotig1500/binning.out',
-        err= '10_BINNING/{sample}/minCotig1500/binning.err'
+        out = '08_BINNING/{sample}/minCotig1500/binning.out',
+        err= '08_BINNING/{sample}/minCotig1500/binning.err'
     shell:
         """
         metabat2 -i {input.contigs} \
         --cvExt -a {input.coverages} \
-        -t 10 -m 1500 --saveCls --outFile 10_BINNING/konzo/minContig1500/bin \
+        -t 10 -m 1500 --saveCls --outFile {params.dir} \
         > {log.out} 2> {log.err}
         
         touch {output.done}
