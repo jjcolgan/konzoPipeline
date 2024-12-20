@@ -157,7 +157,7 @@ rule sort:
     input:
         filtered=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}mapped.bam')
     output:
-        sorted=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam')
+        sorted='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam'
     log:
         out = '04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.log',
         err ='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.err'
