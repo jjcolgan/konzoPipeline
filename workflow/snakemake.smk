@@ -14,7 +14,7 @@ samples = samples[:-1]
 
 rule all:
     input:
-        expand('10_BINNING/{sample}/minCotig1500/binning.done', sample = samples),
+        expand('08_BINNING/{sample}/minContig1500/binning.done', sample = samples),
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         'metagenomes.tsv'
@@ -447,12 +447,12 @@ rule metabat2:
         coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
         contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     output:
-        done = '08_BINNING/{sample}/minCotig1500/binning.done'
+        done = '08_BINNING/{sample}/minContig1500/binning.done'
     params:
         dir = '08_BINNING/{sample}/minContig1500/bin'
     log:
-        out = '08_BINNING/{sample}/minCotig1500/binning.out',
-        err= '08_BINNING/{sample}/minCotig1500/binning.err'
+        out = '08_BINNING/{sample}/minContig1500/binning.out',
+        err= '08_BINNING/{sample}/minContig1500/binning.err'
     shell:
         """
         metabat2 -i {input.contigs} \
