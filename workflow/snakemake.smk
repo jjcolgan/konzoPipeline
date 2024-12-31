@@ -420,8 +420,8 @@ rule exportContigCoverages:
         dir = '09_COVERAGES/{sample}'
 
     output:
-        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
-        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
+        coverages = '07_COVERAGES/{sample}/coverageOutput-COVs.txt',
+        contigs = '07_COVERAGES/{sample}/coverageOutput-CONTIGS.fa'
     log:
         err='07_COVERAGES/{sample}.err',
         out='07_COVERAGES/{sample}.out'
@@ -431,6 +431,7 @@ rule exportContigCoverages:
         -c {input.contigs_db} \
         -p {input.profile_db} \
         -o {params.dir} \
+        -O coverageOutput
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
         """
 rule metabat2:
@@ -444,8 +445,8 @@ rule metabat2:
     conda:
         'metabat2'
     input:
-        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
-        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
+        coverages='07_COVERAGES/{sample}/coverageOutput-COVs.txt',
+        contigs='07_COVERAGES/{sample}/coverageOutput-CONTIGS.fa'
     output:
         done = '08_BINNING/{sample}/minContig1500/binning.done'
     params:
@@ -459,6 +460,5 @@ rule metabat2:
         --cvExt -a {input.coverages} \
         -t 10 -m 1500 --saveCls --outFile {params.dir} \
         > {log.out} 2> {log.err}
-        
         touch {output.done}
         """
