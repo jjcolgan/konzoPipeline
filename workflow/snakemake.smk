@@ -417,24 +417,22 @@ rule exportContigCoverages:
         profile_db = '06_MG_PROFILES/{sample}/PROFILE.db',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
     params:
-        dir = '09_COVERAGES/{sample}',
-	sample = '{sample}'
+        dir = '09_COVERAGES/{sample}'
+
     output:
-        coverages = '09_COVERAGES/{sample}/coverageOutput-COVs.txt',
-        contigs = '09_COVERAGES/{sample}/coverageOutput-CONTIGS.fa'
-        #done = '09_COVERAGES/{sample}.done'
+        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     log:
-        err='09_COVERAGES/{sample}.err',
-        out='09_COVERAGES/{sample}.out'
+        err='07_COVERAGES/{sample}.err',
+        out='07_COVERAGES/{sample}.out'
     shell:
         """
         anvi-export-splits-and-coverages \
-        -c {input.contigs_db}\
+        -c {input.contigs_db} \
         -p {input.profile_db} \
         -o {params.dir} \
-	-O coverageOutput \
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
-	"""
+        """
 rule metabat2:
     resources:
         cpus_per_task = 10,
@@ -446,66 +444,21 @@ rule metabat2:
     conda:
         'metabat2'
     input:
-        coverages = '09_COVERAGES/{sample}/coverageOutput-COVs.txt',
-        contigs = '09_COVERAGES/{sample}/coverageOutput-CONTIGS.fa'
+        coverages = '07_COVERAGES/{sample}/{sample}-konzo-COVs.txt',
+        contigs = '07_COVERAGES/{sample}/{sample}-CONTIGS.fa'
     output:
-        done = '10_BINNING/{sample}/binning.done'
+        done = '08_BINNING/{sample}/minContig1500/binning.done'
     params:
-        dir = '10_BINNING/{sample}/bin{sample}'
+        dir = '08_BINNING/{sample}/minContig1500/bin'
     log:
-        out = '10_BINNING/{sample}/binning.out',
-        err= '10_BINNING/{sample}/binning.err'
+        out = '08_BINNING/{sample}/minContig1500/binning.out',
+        err= '08_BINNING/{sample}/minContig1500/binning.err'
     shell:
         """
         metabat2 -i {input.contigs} \
         --cvExt -a {input.coverages} \
-        -t 10 --saveCls -o {params.dir} \
+        -t 10 -m 1500 --saveCls --outFile {params.dir} \
         > {log.out} 2> {log.err}
+        
         touch {output.done}
         """
-rule makeSTB:
-    resources:
-        cpus_per_task= 1,
-        mem_mb=2000,
-        tasks=1,
-        time='15h',
-        nodes=1,
-        account='pi-blekhman'
-    conda:
-        'drep'
-    input:
-        '10_BINNING/{sample}/binning.done'
-    output:
-        genomes = temp('10_BINNING/{sample}/genomes.txt'),
-        stb = temp('10_BINNING/{sample}/{sample}.stb'),
-        stbCleaned = '10_BINNING/{sample}/stbCleaned.stb'
-    params:
-        path='10_BINNING/{sample}/'
-    shell:
-        """
-        ls {params.path}*fa > {output.genomes}
-        parse_stb.py --reverse -f {output.genomes} -o {output.stb}
-        perl -pe 's/\./_/g' {output.stb} > {output.stbCleaned}
-        """
-rule importCollection:
-    resources:
-        cpus_per_task = 1,
-        mem_mb = 2000,
-        tasks = 1,
-        time = '15h',
-        nodes = 1,
-        account = 'pi-blekhman'
-    conda:
-        'anvio-dev-no-update'
-    input:
-        stb = '10_BINNING/{sample}/stbCleaned.stb',
-        contigs_db='05_CONTIGS_DB/{sample}/contigs.db',
-        profile = '06_MG_PROFILES/{sample}/PROFILE.db'
-    output:
-       done = '05_CONTIGS_DB/{sample}/importBins.done'
-
-    shell:
-        '''
-        anvi-import-collection -c {input.contigs_db} -p {input.profile} -C metabat2NoQCNoDrep --contigs-mode {input.stb} 
-        touch {output.done}
-        '''
