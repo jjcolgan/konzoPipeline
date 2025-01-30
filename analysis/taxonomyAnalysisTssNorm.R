@@ -96,7 +96,7 @@ adonisMeta = meta %>%
 
 adonis2(brayDist~Status, data = adonisMeta)
 
-pcoaRes %>%
+brayCoa=pcoaRes %>%
   as.data.frame() %>%
   rownames_to_column('sample') %>%
   left_join(meta, by = 'sample')%>%
@@ -146,7 +146,7 @@ ruralTaxa=taxaData %>%
   t()%>%
   as.data.frame()
 
-ruralTaxaFiltered <- ruralTaxa[rowSums(ruralTaxa >= 5) >= 3, ]
+ruralTaxaFiltered <- ruralTaxa[rowSums(ruralTaxa >= 5) >= 13, ]
 ruralTss = ruralTaxaFiltered %>%
   tss_normalize()
 
@@ -205,14 +205,15 @@ brayDist<-ruralTss %>%
   t()%>%
   vegdist(method = 'jaccard')
 pcoaRes=wcmdscale(brayDist,eig = T,add=T)
-adonisData= taxaDataTss %>%
-  column_to_rownames('taxon')%>%
+adonisData= ruralTss %>%
   t()
+
 
 adonisMeta = meta %>%
   filter(sample %in% rownames(adonisData))
 
 adonis2(brayDist~Status, data = adonisMeta)
+adonis2(brayDist~Location, data = adonisMeta)
 (pcoaRes$eig / sum(pcoaRes$eig))*100
 pcoaRes$points %>%
   as.data.frame() %>%
@@ -223,7 +224,8 @@ pcoaRes$points %>%
              y = Dim2))+
   geom_point()+
   labs(x = 'PCo1 = 9.73%',
-       y = 'PCo2 = 2.044%')
+       y = 'PCo2 = 2.044%',
+  caption = 'P = .071, PERMANOVA')
 maaslinRuralMeta = ruralMeta %>%
   column_to_rownames('sample')
 Maaslin2(input_data = ruralTaxa,
@@ -232,3 +234,8 @@ Maaslin2(input_data = ruralTaxa,
          reference = c('Status,Masi-Manimba'),
          input_metadata = maaslinRuralMeta,
 )
+
+kahembaMeta = meta %>%
+  filter(Location == 'Kahemba')
+
+taxaData = taxaData
