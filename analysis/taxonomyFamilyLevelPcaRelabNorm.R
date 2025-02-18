@@ -70,7 +70,7 @@ familyPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()+stat_ellipse(level = .9)
+  geom_point()+stat_ellipse()
 
 familyPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -79,7 +79,7 @@ familyPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()+stat_ellipse(level = .9)
+  geom_point()+stat_ellipse()
 
 familyPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -218,10 +218,6 @@ familyPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-familyPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
 
 familyPCAOut$x%>%
   as.data.frame()%>%
@@ -304,8 +300,8 @@ familyPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+stat_ellipse()
 
 familyPCAOut$x%>%
   as.data.frame()%>%
@@ -386,8 +382,8 @@ familyPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+stat_ellipse()
 
 familyPCAOut$x%>%
   as.data.frame()%>%

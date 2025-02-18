@@ -117,8 +117,9 @@ genusPCAOutNoScaling$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+
+  stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -217,10 +218,6 @@ genusPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-genusPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -256,7 +253,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -265,7 +262,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Sex))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -303,8 +300,8 @@ genusPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%

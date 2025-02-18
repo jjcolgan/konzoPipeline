@@ -215,10 +215,7 @@ classPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-classPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
+
 
 classPCAOut$x%>%
   as.data.frame()%>%

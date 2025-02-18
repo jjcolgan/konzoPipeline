@@ -231,10 +231,7 @@ phylumPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-phylumPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
+
 
 phylumPCAOut$x%>%
   as.data.frame()%>%
@@ -243,7 +240,7 @@ phylumPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 phylumPCAOut$x%>%
   as.data.frame()%>%
@@ -297,26 +294,6 @@ phylumPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Family))+
-  geom_point()+
-  theme(legend.position = 'none')
-
-phylumPCAOut$x%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC1,
-             y = PC2,
-             col = Family))+
-  geom_point()+
-  theme(legend.position = 'none')
-
-phylumPCAOut$x%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC1,
-             y = PC2,
              col = Age_T0))+
   geom_point()
 
@@ -326,7 +303,7 @@ phylumPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Stage))+
+             col = as.factor(Stage)))+
   geom_point()
 
 phylumPCAOut$x%>%
@@ -345,7 +322,7 @@ phylumPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 phylumPCAOut$x%>%
   as.data.frame()%>%
@@ -363,7 +340,7 @@ phylumPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 phylumPCAOut$x%>%
   as.data.frame()%>%
@@ -372,7 +349,7 @@ phylumPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 phylumPCAOut$x%>%
   as.data.frame()%>%
@@ -408,8 +385,9 @@ phylumPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+
+  stat_ellipse()
 
 phylumPCAOut$x%>%
   as.data.frame()%>%

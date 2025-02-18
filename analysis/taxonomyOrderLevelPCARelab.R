@@ -100,15 +100,6 @@ orderPCAOutNoScaling$x%>%
   geom_point()+
   theme(legend.position = 'none')
 
-orderPCAOutNoScaling$x%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC1,
-             y = PC2,
-             col = Family))+
-  geom_point()+
-  theme(legend.position = 'none')
 
 
 orderPCAOutNoScaling$x%>%
@@ -126,8 +117,8 @@ orderPCAOutNoScaling$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -184,7 +175,7 @@ orderPCAOutNoScaling$x%>%
              col = Sex))+
   geom_point()
 
-orderPCAOutNoScaling$x%>%
+;orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -226,10 +217,7 @@ orderPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-orderPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
+
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -347,7 +335,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
