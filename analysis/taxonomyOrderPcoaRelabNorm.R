@@ -12,6 +12,10 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
+
+'seperation diriven by location along pc1. Not really
+seeing the trend with variance as was noted with the scaled PCAs'
+
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_order-MATRIX.txt')
 taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
 taxaDataTss= taxaDataFiltered%>%
@@ -49,7 +53,8 @@ pcoaOut$points%>%
              col = Status))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse(
+)
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -60,7 +65,7 @@ pcoaOut$points%>%
              col = Location))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -82,7 +87,7 @@ pcoaOut$points%>%
              col = Status))+
   geom_point()+
   labs(x = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
-       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))
+       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -93,7 +98,8 @@ pcoaOut$points%>%
              col = Location))+
   geom_point()+
   labs(x = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
-       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))
+       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))+
+  stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%

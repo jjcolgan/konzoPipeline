@@ -12,6 +12,8 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
+
+'Sep driven by pc 2 (location)'
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_genus-MATRIX.txt')
 taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
 taxaDataTss= taxaDataFiltered%>%
@@ -39,7 +41,6 @@ pcoaOut$points%>%
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
        y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
-
 pcoaOut$points%>%
   as.data.frame()%>%
   rownames_to_column('Sample')%>%
@@ -49,7 +50,8 @@ pcoaOut$points%>%
              col = Status))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
+  stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%

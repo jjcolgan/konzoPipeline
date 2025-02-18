@@ -49,7 +49,8 @@ pcoaOut$points%>%
              col = Status))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
+  stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -60,7 +61,8 @@ pcoaOut$points%>%
              col = Location))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
+  stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%

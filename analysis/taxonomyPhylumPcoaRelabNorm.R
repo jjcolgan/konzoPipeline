@@ -11,6 +11,11 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
+
+'PC1 captures seperation based on location. PC1 also accounts for 60%
+of the varation'
+
+
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_phylum-MATRIX.txt')
 taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
 taxaDataTss= taxaDataFiltered%>%
@@ -48,7 +53,7 @@ pcoaOut$points%>%
              col = Status))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -59,7 +64,7 @@ pcoaOut$points%>%
              col = Location))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -70,7 +75,7 @@ pcoaOut$points%>%
              col = Disease))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -92,7 +97,7 @@ pcoaOut$points%>%
              col = Location))+
   geom_point()+
   labs(x = paste0('PC2 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC3 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC3 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -103,4 +108,4 @@ pcoaOut$points%>%
              col = Disease))+
   geom_point()+
   labs(x = paste0('PC2 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC3 - ', pcoaOut$eig[2]/totalvar))
+       y = paste0('PC3 - ', pcoaOut$eig[2]/totalvar))+stat_ellipse()
