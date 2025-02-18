@@ -13,7 +13,7 @@ tss_normalize <- function(df) {
 'These look very strange. Species level matrix is very sparse. This is going to need some
 more thorough filtering to get any signal out of. '
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_species-MATRIX.txt')
-taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 30, ]
+taxaDataFiltered <- taxaData[rowSums(taxaData >= 3) >= 5, ]
 taxaDataTss= taxaDataFiltered%>%
   column_to_rownames('taxon')%>%
   tss_normalize()
@@ -214,10 +214,6 @@ genusPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale = T)
-genusPCAOut=taxaDataTss %>%
-  column_to_rownames('taxon')%>%
-  t()%>%
-  prcomp(center = T)
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -382,8 +378,9 @@ genusPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+
+  stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
