@@ -10,7 +10,10 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
-'Looks like region is driving some level of segration, otherwise not seeing much'
+'Looks like region is driving some level of segration, otherwise not seeing much.
+Better seperation on region when using the scaled PCAs. Mainly driven
+by PC1, pattern is much less apparent when looking at pc2 - 3. Scaled PC2 / 3
+seems to show greater variance in composition of konzo relative to unaffected'
 
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_order-MATRIX.txt')
 taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
@@ -49,7 +52,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -67,7 +70,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -76,7 +79,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -142,7 +145,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 
 orderPCAOutNoScaling$x%>%
@@ -161,7 +164,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -170,7 +173,7 @@ orderPCAOutNoScaling$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -235,7 +238,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -253,7 +256,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -262,7 +265,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -271,27 +274,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Sex))+
-  geom_point()
-
-orderPCAOut$x%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC1,
-             y = PC2,
-             col = Family))+
-  geom_point()+
-  theme(legend.position = 'none')
-
-orderPCAOut$x%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC1,
-             y = PC2,
-             col = Family))+
-  geom_point()+
-  theme(legend.position = 'none')
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -337,7 +320,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -355,7 +338,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -373,7 +356,7 @@ orderPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Sex))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%
@@ -400,8 +383,8 @@ orderPCAOut$x%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
-             col = Stage))+
-  geom_point()
+             col = as.factor(Stage)))+
+  geom_point()+stat_ellipse()
 
 orderPCAOut$x%>%
   as.data.frame()%>%

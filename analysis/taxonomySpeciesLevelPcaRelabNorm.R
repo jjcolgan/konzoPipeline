@@ -1,5 +1,4 @@
 library(tidyverse)
-library(vegan)
 tss_normalize <- function(df) {
   # Ensure all values are numeric
   # Calculate the column sums (total abundance per sample)
@@ -10,13 +9,11 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
-'Seperation by location is much more dramatic in the scaled plot, by PC1. Scaled PC2 and 3 may be
-capturing some varation assoicated with Konzo. Unscaled pc 1 v 2 seems to show greater variance
-in the composition of the Konzo samples, relative to both Kinsasha and Masi-manimba. Konzo takes up
-the same area as defined by both groups confidence intervals (i.e. much bigger)'
 
-taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_family-MATRIX.txt')
-taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
+'These look very strange. Species level matrix is very sparse. This is going to need some
+more thorough filtering to get any signal out of. '
+taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_species-MATRIX.txt')
+taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 30, ]
 taxaDataTss= taxaDataFiltered%>%
   column_to_rownames('taxon')%>%
   tss_normalize()
@@ -40,12 +37,12 @@ meta=taxaData%>%
   rename('librarySize' = c(2))%>%
   left_join(meta, by = "sample")
 
-familyPCAOutNoScaling=taxaDataTss %>%
+genusPCAOutNoScaling=taxaDataTss %>%
   column_to_rownames('taxon')%>%
   t()%>%
   prcomp(center = T)
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -54,7 +51,7 @@ familyPCAOutNoScaling$x%>%
              col = Location))+
   geom_point()+stat_ellipse(level = .9)
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -63,25 +60,25 @@ familyPCAOutNoScaling$x%>%
              col = librarySize))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()+stat_ellipse(level = .9)
+  geom_point()+stat_ellipse()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()+stat_ellipse(level = .9)
+  geom_point()+stat_ellipse()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -90,7 +87,7 @@ familyPCAOutNoScaling$x%>%
              col = Sex))+
   geom_point()+stat_ellipse()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -102,7 +99,7 @@ familyPCAOutNoScaling$x%>%
 
 
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -111,7 +108,7 @@ familyPCAOutNoScaling$x%>%
              col = Age_T0))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -120,7 +117,7 @@ familyPCAOutNoScaling$x%>%
              col = Stage))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -129,18 +126,17 @@ familyPCAOutNoScaling$x%>%
              col = Concentration))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Location))+
-  geom_point()+stat_ellipse()
+  geom_point()
 
 
-
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -149,25 +145,25 @@ familyPCAOutNoScaling$x%>%
              col = librarySize))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -176,7 +172,7 @@ familyPCAOutNoScaling$x%>%
              col = Sex))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -186,7 +182,7 @@ familyPCAOutNoScaling$x%>%
   geom_point()+
   theme(legend.position = 'none')
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -195,7 +191,7 @@ familyPCAOutNoScaling$x%>%
              col = Age_T0))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -204,7 +200,7 @@ familyPCAOutNoScaling$x%>%
              col = Stage))+
   geom_point()
 
-familyPCAOutNoScaling$x%>%
+genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -213,17 +209,17 @@ familyPCAOutNoScaling$x%>%
              col = Concentration))+
   geom_point()
 
-familyPCAOut=taxaDataTss %>%
+genusPCAOut=taxaDataTss %>%
   column_to_rownames('taxon')%>%
   t()%>%
   prcomp(center = T,
          scale = T)
-familyPCAOut=taxaDataTss %>%
+genusPCAOut=taxaDataTss %>%
   column_to_rownames('taxon')%>%
   t()%>%
   prcomp(center = T)
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -232,7 +228,7 @@ familyPCAOut$x%>%
              col = Location))+
   geom_point()+stat_ellipse()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -241,7 +237,7 @@ familyPCAOut$x%>%
              col = librarySize))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -250,16 +246,16 @@ familyPCAOut$x%>%
              col = Status))+
   geom_point()+stat_ellipse()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()+stat_ellipse()
+  geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -268,7 +264,7 @@ familyPCAOut$x%>%
              col = Sex))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -279,7 +275,7 @@ familyPCAOut$x%>%
   theme(legend.position = 'none')
 
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -289,7 +285,7 @@ familyPCAOut$x%>%
   geom_point()+
   theme(legend.position = 'none')
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -298,7 +294,7 @@ familyPCAOut$x%>%
              col = Age_T0))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -307,7 +303,7 @@ familyPCAOut$x%>%
              col = Stage))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -316,16 +312,16 @@ familyPCAOut$x%>%
              col = Concentration))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Location))+
-  geom_point()+stat_ellipse()
+  geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -334,7 +330,7 @@ familyPCAOut$x%>%
              col = librarySize))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -343,7 +339,7 @@ familyPCAOut$x%>%
              col = Status))+
   geom_point()+stat_ellipse()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -352,7 +348,7 @@ familyPCAOut$x%>%
              col = Disease))+
   geom_point()+stat_ellipse()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -361,7 +357,7 @@ familyPCAOut$x%>%
              col = Sex))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -371,7 +367,7 @@ familyPCAOut$x%>%
   geom_point()+
   theme(legend.position = 'none')
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -380,7 +376,7 @@ familyPCAOut$x%>%
              col = Age_T0))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
@@ -389,7 +385,7 @@ familyPCAOut$x%>%
              col = Stage))+
   geom_point()
 
-familyPCAOut$x%>%
+genusPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%

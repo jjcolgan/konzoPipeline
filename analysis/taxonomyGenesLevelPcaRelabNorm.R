@@ -9,6 +9,12 @@ tss_normalize <- function(df) {
 
   return(df_normalized)
 }
+
+'Unscaled pc1 v 2 shows seperation on region being driven by pc 2.
+There ellipsessuggest that there may be seperation in konzo v non konzo.
+The larger variance in previous plots at the order and family level are not really
+apparant for Konzo.'
+
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_genus-MATRIX.txt')
 taxaDataFiltered <- taxaData[rowSums(taxaData >= 5) >= 3, ]
 taxaDataTss= taxaDataFiltered%>%
@@ -46,7 +52,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse(level = .9)
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -64,7 +70,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -73,7 +79,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -82,7 +88,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Sex))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -149,7 +155,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -158,7 +164,7 @@ genusPCAOutNoScaling$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOutNoScaling$x%>%
   as.data.frame()%>%
@@ -223,7 +229,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Location))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -241,7 +247,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC1,
              y = PC2,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -334,7 +340,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Status))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
@@ -343,7 +349,7 @@ genusPCAOut$x%>%
   ggplot(aes(x = PC2,
              y = PC3,
              col = Disease))+
-  geom_point()
+  geom_point()+stat_ellipse()
 
 genusPCAOut$x%>%
   as.data.frame()%>%
