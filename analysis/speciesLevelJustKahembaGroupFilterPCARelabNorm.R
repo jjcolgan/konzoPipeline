@@ -1,8 +1,7 @@
 library(tidyverse)
 library(ggpubr)
 library(vegan)
-'10% or 15% is probably the best for species level'
-'25% looks better when using bray curtis.'
+
 tss_normalize <- function(df) {
   # Ensure all values are numeric
   # Calculate the column sums (total abundance per sample)
@@ -15,15 +14,18 @@ tss_normalize <- function(df) {
 }
 
 meta = read_csv('/Users/johnjamescolgan/Downloads/Konzo_Metagenomics_2021_Meta (2).csv')
+meta$tage = factor(meta$Stage, levels = c(NA, 0,1,2,3))
 meta = meta %>%
-  rename('sample'= Sample)
+  rename('sample'= Sample)%>%
+  filter(is.na(Stage)!= T)
 
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_species-MATRIX.txt')
 
 taxaDataLong=taxaData %>%
   pivot_longer(cols = c(2:293),
                names_to = 'sample',
-               values_to = 'coverage')
+               values_to = 'coverage')%>%
+  filter(sample %in% meta$sample)
 
 fullDataLong=taxaDataLong %>%
   left_join(meta, by = 'sample')
@@ -31,99 +33,57 @@ fullDataLong=taxaDataLong %>%
 fullDataAbundanceFiltered=fullDataLong %>%
   filter(coverage >= 3)
 
-
 groupCounts=meta %>%
   group_by(Status) %>%
   summarise('groupCounts' = n())
-
-#54 taxa passing konzo at 25% prevelance
-# 79 at 20%
+#54 passing at 25%
+#78 passing at 20$
 #107 at 15%
-#176 at 10%
-#289 at 5%
 taxaPassingPrevelanceFilterKonzo=fullDataAbundanceFiltered %>%
   filter(Status == 'Konzo') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 95*.20)%>%
+  filter(prevelance >= 95*.1)%>%
   .$taxon
 length(taxaPassingPrevelanceFilterKonzo)
 
-
-#53 taxa passing unaffected at 25% prevelance
-#77 at 20%
+#50 taxa passing at 25%, this is not the same as when filtering by Status??
+#76 passing at 20%
 #115 at 15%
-#161 at 10%
-#276 at 5%
 taxaPassingPrevelanceFilterUnaffected=fullDataAbundanceFiltered %>%
   filter(Status == 'Unaffected') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 93*.20)%>%
+  filter(prevelance >= 93*.1)%>%
   .$taxon
 length(taxaPassingPrevelanceFilterUnaffected)
 
-#2 taxa passing 25%
-#80 at 20%
-#127 at 15%
-#161 at 10%
-#289 at 5%
-taxaPassingPrevelanceFilterMasiManimba=fullDataAbundanceFiltered %>%
-  filter(Status == 'Masi-Manimba') %>%
-  group_by(taxon)%>%
-  summarise('prevelance' = n())%>%
-  filter(prevelance >= 77*.20)%>%
-  .$taxon
-length(taxaPassingPrevelanceFilterMasiManimba)
 
-#2 taxa passing 25%
-#56 at 20%
-#79 at 15%
-#123 at 10%
-#255 at 5%
-taxaPassingPrevelanceFilterKinshasa=fullDataAbundanceFiltered %>%
-  filter(Status == 'Kinshasa') %>%
-  group_by(taxon)%>%
-  summarise('prevelance' = n())%>%
-  filter(prevelance >= 35*.20) %>%
-.$taxon
-length(taxaPassingPrevelanceFilterKinshasa)
 
-#81 total taxa passing at 25% prevelance
-#135 at 20%
-#187 at 15%
-# 252 at 10%
-#430 at 5%
+taxaPassingPrevelanceFilter=union(taxaPassingPrevelanceFilterUnaffected,
+                                  taxaPassingPrevelanceFilterKonzo)
 
-taxaPassingPrevelanceFilter=union(taxaPassingPrevelanceFilterKinshasa,
-      taxaPassingPrevelanceFilterKonzo)%>%
-  union(taxaPassingPrevelanceFilterUnaffected)%>%
-  union( taxaPassingPrevelanceFilterMasiManimba)
+#4% of taxa pass this filter(25%)
+#8 percent pass at 20%
+length(taxaPassingPrevelanceFilter)/length(taxaData$taxon)
 
 taxaDataTss= taxaData%>%
   filter(taxon %in% taxaPassingPrevelanceFilter)%>%
   column_to_rownames('taxon')%>%
-  tss_normalize()
-
-meta=taxaData%>%
-  column_to_rownames('taxon')%>%
   t()%>%
-  rowSums()%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
-  rename('librarySize' = c(2))%>%
-  left_join(meta, by = "sample")
+  filter(sample %in% meta$sample)%>%
+  column_to_rownames('sample')%>%
+  t()%>%
+  tss_normalize()
 
 speciesPCAOut=taxaDataTss %>%
   t()%>%
   prcomp(center = T,
          scale. = T)
 
-# 16% of bugs retained at 15% prevelance
-# 23% of bugs retained at 10% prevelance
-# 31% of bugs retained at 5% prevelance
 
-length(taxaPassingPrevelanceFilter)/length(taxaData$taxon)
 
 speciesPCAOut$x%>%
   as.data.frame()%>%
@@ -134,6 +94,26 @@ speciesPCAOut$x%>%
              col = Status))+
   geom_point(alpha = .5)+
   stat_ellipse()
+
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC1,
+             y = PC2,
+             col = Status))+
+  geom_point(alpha = .5)
+
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC1,
+             y = PC2,
+             col = as.factor(Stage)))+
+  geom_point(alpha = .5)+
+  stat_ellipse()
+
 
 speciesPCAOut$x%>%
   as.data.frame()%>%
@@ -154,7 +134,37 @@ speciesPCAOut$x%>%
              y = PC3,
              col = Status))+
   geom_point(alpha = .5)+
-  stat_ellipse(level = .95)
+  stat_ellipse()
+
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC2,
+             y = PC3,
+             col = Status,
+             group = Family))+
+  geom_point(alpha = .5)+
+  geom_line(alpha = .5)
+
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC2,
+             y = PC3,
+             col = Status))+
+  geom_point(alpha = .5)
+
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC2,
+             y = PC3,
+             col = as.factor(Stage)))+
+  geom_point(alpha = .5)+
+  stat_ellipse()
 
 speciesPCAOut$x%>%
   as.data.frame()%>%
@@ -164,32 +174,42 @@ speciesPCAOut$x%>%
              y = PC4,
              col = Status))+
   geom_point(alpha = .5)+
-  stat_ellipse(level = .95)
+  stat_ellipse()
 
 speciesPCAOut$x%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = PC4,
-             y = PC5,
-             col = Status))+
+  ggplot(aes(x = PC3,
+             y = PC4,
+             col = as.factor(Stage)))+
   geom_point(alpha = .5)+
-  stat_ellipse(level = .95)
+  stat_ellipse()
 
-'Horseshoe with jaccard at 25% prevelance, not ideal'
-'Robust aitchison looks weird, need to read about it. Maybe filtering
-is not as nessicary'
-'I like chao, I believe this is placing weight on low abundance taxa.
-Significant at p < .001 for status. Low R2 however. Not sure this is surpising'
-'Family explains the most variation at .82, p < .001'
+speciesPCAOut$x%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = PC3,
+             y = PC4,
+             col = Status,
+             group = Family))+
+  geom_point(alpha = .5)+
+  geom_line(alpha = .5,
+            col = 'grey')
+
 distMatBray=taxaDataTss %>%
   t()%>%
-  vegdist(method = 'chao')
+  vegdist(method = 'jaccard')
 
-adonis2(distMatBray~Status, data = column_to_rownames(meta,'sample'))
-adonis2(distMatBray~Location, data = column_to_rownames(meta,'sample'))
-adonis2(distMatBray~Sex, data = column_to_rownames(meta,'sample'))
-#adonis2(distMatBray~Family, data = column_to_rownames(meta,'sample'))
+adonisMeta = meta %>%
+  filter(sample %in% colnames(taxaDataTss))%>%
+  column_to_rownames('sample')
+'Nothing significant using jaccard'
+adonis2(distMatBray~Status, data = adonisMeta)
+adonis2(distMatBray~Sex, data =  adonisMeta)
+#adonis2(distMatBray~Family,  data = adonisMeta)
+adonis2(distMatBray~Stage,  data = adonisMeta)
 
 
 pcoaOut=cmdscale(distMatBray, k = 4 , eig = T)
@@ -201,19 +221,7 @@ pcoaOut$points%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = V1,
              y = V2,
-             col = Status))+
-  geom_point()+
-  labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
-  stat_ellipse()
-
-pcoaOut$points%>%
-  as.data.frame()%>%
-  rownames_to_column('sample')%>%
-  left_join(meta, by = 'sample')%>%
-  ggplot(aes(x = V1,
-             y = V2,
-             col = Location))+
+             col = as.factor(Stage)))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
        y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
@@ -229,8 +237,7 @@ pcoaOut$points%>%
              group = Family))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
-  geom_line()
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -247,6 +254,17 @@ pcoaOut$points%>%
   as.data.frame()%>%
   rownames_to_column('sample')%>%
   left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = V2,
+             y = V3,
+             col = Stage))+
+  geom_point()+
+  labs(x = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
+       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))
+
+pcoaOut$points%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
   ggplot(aes(x = V3,
              y = V4,
              col = Status))+
@@ -255,15 +273,30 @@ pcoaOut$points%>%
        y = paste0('PC4 - ', pcoaOut$eig[4]/totalvar))+
   stat_ellipse()
 
-'Sex is still insignficant with bray, status and location remain significant, with smaller R2'
+pcoaOut$points%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = V3,
+             y = V4,
+             col = Stage))+
+  geom_point()+
+  labs(x = paste0('PC3 - ', pcoaOut$eig[3]/totalvar),
+       y = paste0('PC4 - ', pcoaOut$eig[4]/totalvar))+
+  stat_ellipse()
+
 distMatBray=taxaDataTss %>%
   t()%>%
   vegdist(method = 'bray')
 
-adonis2(distMatBray~Status, data = column_to_rownames(meta,'sample'))
-adonis2(distMatBray~Location, data = column_to_rownames(meta,'sample'))
-adonis2(distMatBray~Sex, data = column_to_rownames(meta,'sample'))
-adonis2(distMatBray~Family, data = column_to_rownames(meta,'sample'))
+adonisMeta = meta %>%
+  filter(sample %in% colnames(taxaDataTss))%>%
+  column_to_rownames('sample')
+'Nothing significant using bray-curtis'
+adonis2(distMatBray~Status, data = adonisMeta)
+adonis2(distMatBray~Sex, data =  adonisMeta)
+#adonis2(distMatBray~Family,  data = adonisMeta)
+adonis2(distMatBray~Stage,  data = adonisMeta)
 
 
 pcoaOut=cmdscale(distMatBray, k = 4 , eig = T)
@@ -275,7 +308,7 @@ pcoaOut$points%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = V1,
              y = V2,
-             col = Location))+
+             col = as.factor(Stage)))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
        y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
@@ -291,8 +324,7 @@ pcoaOut$points%>%
              group = Family))+
   geom_point()+
   labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
-       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
-  geom_line()
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))
 
 pcoaOut$points%>%
   as.data.frame()%>%
@@ -311,7 +343,7 @@ pcoaOut$points%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = V2,
              y = V3,
-             col = Location))+
+             col = Stage))+
   geom_point()+
   labs(x = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
        y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))
@@ -334,16 +366,8 @@ pcoaOut$points%>%
   left_join(meta, by = 'sample')%>%
   ggplot(aes(x = V3,
              y = V4,
-             col = Location))+
+             col = Stage))+
   geom_point()+
   labs(x = paste0('PC3 - ', pcoaOut$eig[3]/totalvar),
        y = paste0('PC4 - ', pcoaOut$eig[4]/totalvar))+
   stat_ellipse()
-
-
-
-
-
-
-
-
