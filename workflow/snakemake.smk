@@ -365,7 +365,8 @@ rule profile:
     input:
         indexedDone = '04_MG_ALIGNED/{sample}_index.done',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db',
-        bam='04_MG_ALIGNED/{sample}Sorted.bam'
+        bam='04_MG_ALIGNED/{sample}Sorted.bam',
+        annotations = '05_CONTIGS_DB/{sample}/annotations.done'
     log:
         out='06_MG_PROFILES/{sample}Profile.log',
         error='06_MG_PROFILES/{sample}Profile.err'
