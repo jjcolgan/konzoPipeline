@@ -19,6 +19,37 @@ rule all:
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         'metagenomes.tsv'
 
+
+rule assembly:
+    conda: 'megahit'
+    resources:
+        cpus_per_task=8,
+        mem_mb=16000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    threads: 8
+    input:
+        r1 = '/project/blekhman/jjcolgan/mgDenovoAssembly/populationAssembly/01_QC/{sample}_R1_dehosted.fastq.gz',
+        r2 = '/project/blekhman/jjcolgan/mgDenovoAssembly/populationAssembly/01_QC/{sample}_R2_dehosted.fastq.gz'
+    output:
+        contigsDone = '02_ASSEMBLY/{sample}.done'
+    params:
+        dir = '02_ASSEMBLY/{sample}'
+    log:
+        err = '02_ASSEMBLY/{sample}.err',
+        out = '02_ASSEMBLY/{sample}.out'
+    shell:
+        '''
+        megahit -1 {input.r1} \
+        -2 {input.r2} \
+        -t {threads} \
+        --min-contig-len 750 \
+        -o {params.dir} > {log.out} 2> {log.err}
+        '''
+
+
 rule makeMetaGenomesFile:
     envmodules:
         'R'
