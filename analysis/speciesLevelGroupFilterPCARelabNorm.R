@@ -1,6 +1,8 @@
 library(tidyverse)
 library(ggpubr)
+library(vegan)
 '10% or 15% is probably the best for species level'
+'25% looks better when using bray curtis.'
 tss_normalize <- function(df) {
   # Ensure all values are numeric
   # Calculate the column sums (total abundance per sample)
@@ -43,7 +45,7 @@ taxaPassingPrevelanceFilterKonzo=fullDataAbundanceFiltered %>%
   filter(Status == 'Konzo') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 95*.15)%>%
+  filter(prevelance >= 95*.25)%>%
   .$taxon
 length(taxaPassingPrevelanceFilterKonzo)
 
@@ -57,7 +59,7 @@ taxaPassingPrevelanceFilterUnaffected=fullDataAbundanceFiltered %>%
   filter(Status == 'Unaffected') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 93*.15)%>%
+  filter(prevelance >= 93*.25)%>%
   .$taxon
 length(taxaPassingPrevelanceFilterUnaffected)
 
@@ -70,7 +72,7 @@ taxaPassingPrevelanceFilterMasiManimba=fullDataAbundanceFiltered %>%
   filter(Status == 'Masi-Manimba') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 77*.15)%>%
+  filter(prevelance >= 77*.25)%>%
   .$taxon
 length(taxaPassingPrevelanceFilterMasiManimba)
 
@@ -83,7 +85,7 @@ taxaPassingPrevelanceFilterKinshasa=fullDataAbundanceFiltered %>%
   filter(Status == 'Kinshasa') %>%
   group_by(taxon)%>%
   summarise('prevelance' = n())%>%
-  filter(prevelance >= 35*.15) %>%
+  filter(prevelance >= 35*.25) %>%
 .$taxon
 length(taxaPassingPrevelanceFilterKinshasa)
 
@@ -162,6 +164,50 @@ speciesPCAOut$x%>%
              col = Status))+
   geom_point(alpha = .5)+
   stat_ellipse(level = .95)
+
+'Horseshoe with jaccard at 25% prevelance, not ideal'
+distMatBray=taxaDataTss %>%
+  t()%>%
+  vegdist(method = 'manhattan')
+
+pcoaOut=cmdscale(distMatBray, k = 4 , eig = T)
+totalvar = sum(pcoaOut$eig)
+
+pcoaOut$points%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = V1,
+             y = V2,
+             col = Status))+
+  geom_point()+
+  labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
+       y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar))+
+  stat_ellipse()
+
+pcoaOut$points%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = V2,
+             y = V3,
+             col = Status))+
+  geom_point()+
+  labs(x = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
+       y = paste0('PC3 - ', pcoaOut$eig[3]/totalvar))+
+  stat_ellipse()
+
+pcoaOut$points%>%
+  as.data.frame()%>%
+  rownames_to_column('sample')%>%
+  left_join(meta, by = 'sample')%>%
+  ggplot(aes(x = V3,
+             y = V4,
+             col = Status))+
+  geom_point()+
+  labs(x = paste0('PC3 - ', pcoaOut$eig[3]/totalvar),
+       y = paste0('PC4 - ', pcoaOut$eig[4]/totalvar))+
+  stat_ellipse()
 
 
 

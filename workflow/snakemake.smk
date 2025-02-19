@@ -14,7 +14,7 @@ samples = samples[:-1]
 
 rule all:
     input:
-        expand('08_BINNING/{sample}/minContig1500/binning.done', sample = samples),
+        expand('05_CONTIGS_DB/{sample}/importBins.done', sample = samples),
         expand('05_CONTIGS_DB/{sample}/contigs.db', sample = samples),
         expand('05_CONTIGS_DB/{sample}/annotations.done', sample = samples),
         'metagenomes.tsv'
@@ -161,7 +161,6 @@ rule sort:
     log:
         out = '04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.log',
         err ='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.err'
-    threads: 1
     shell:
         """
         samtools sort {input.filtered} -o {output.sorted} > {log.out} 2> {log.err}
@@ -366,12 +365,12 @@ rule profile:
     input:
         indexedDone = '04_MG_ALIGNED/{sample}_index.done',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db',
-        bam='04_MG_ALIGNED/{sample}Sorted.bam'
+        bam='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam'
     log:
         out='06_MG_PROFILES/{sample}Profile.log',
         error='06_MG_PROFILES/{sample}Profile.err'
     output:
-        done='06_MG_PROFILES/{sample}/PROFILE.db'
+        done='06_MG_PROFILES/{sample}/profile.done'
     params:
         dir = '06_MG_PROFILES/{sample}'
     threads: 10
@@ -381,6 +380,7 @@ rule profile:
         -c {input.contigs_db} \
         -T {threads} \
         -o {params.dir} --force-overwrite > {log.out} 2> {log.error}
+        touch {output.done}
         """
 rule checkAnnotations:
     resources:
@@ -434,31 +434,99 @@ rule exportContigCoverages:
         -O coverageOutput
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
         """
+rule genDepth:
+    conda: 'metabat2'
+
+    resources:
+        cpus_per_task=10,
+        mem_mb=2000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    input:
+        bam='04_MG_ALIGNED/{sample}Sorted.bam'
+    output:
+        depth='07_COVERAGES{sample}/depth'
+    shell:
+        """
+        jgi_summarize_bam_contig_depths -outputDepth {output.depth} \
+        {input.bam}
+        """
+
 rule metabat2:
     resources:
-        cpus_per_task = 10,
-        mem_mb = 50000,
-        tasks = 1,
-        time = '15h',
-        nodes = 1,
-        account = 'pi-blekhman'
+        cpus_per_task=10,
+        mem_mb=4000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
     conda:
         'metabat2'
     input:
-        coverages='07_COVERAGES/{sample}/coverageOutput-COVs.txt',
+        depth='07_COVERAGES/{sample}/depth',
         contigs='07_COVERAGES/{sample}/coverageOutput-CONTIGS.fa'
     output:
-        done = '08_BINNING/{sample}/minContig1500/binning.done'
+        done='10_BINNING/{sample}/binning.done'
     params:
-        dir = '08_BINNING/{sample}/minContig1500/bin'
+        dir='10_BINNING/{sample}/bin{sample}'
     log:
-        out = '08_BINNING/{sample}/minContig1500/binning.out',
-        err= '08_BINNING/{sample}/minContig1500/binning.err'
+        out='10_BINNING/{sample}/binning.out',
+        err='10_BINNING/{sample}/binning.err'
     shell:
         """
         metabat2 -i {input.contigs} \
-        --cvExt -a {input.coverages} \
-        -t 10 -m 1500 --saveCls --outFile {params.dir} \
+         -a {input.depth} \
+        -t 10 -m 1500 --saveCls -o {params.dir} \
         > {log.out} 2> {log.err}
         touch {output.done}
         """
+
+rule makeSTB:
+    resources:
+        cpus_per_task=1,
+        mem_mb=2000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    conda:
+        'drep'
+    input:
+        '10_BINNING/{sample}/binning.done'
+    output:
+        genomes=temp('10_BINNING/{sample}/genomes.txt'),
+        stb=temp('10_BINNING/{sample}/{sample}.stb'),
+        stbCleaned='10_BINNING/{sample}/stbCleaned.stb'
+    params:
+        path='10_BINNING/{sample}/'
+    shell:
+        """
+        ls {params.path}*fa > {output.genomes}
+        parse_stb.py --reverse -f {output.genomes} -o {output.stb}
+        perl -pe 's/\./_/g' {output.stb} > {output.stbCleaned}
+        """
+
+rule importCollection:
+    resources:
+        cpus_per_task=1,
+        mem_mb=2000,
+        tasks=1,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    conda:
+        'anvio-dev-no-update'
+    input:
+        stb='10_BINNING/{sample}/stbCleaned.stb',
+        profile_db='06_MG_PROFILES/{sample}/PROFILE.db',
+        contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
+    output:
+        done='05_CONTIGS_DB/{sample}/importBins.done'
+
+    shell:
+        '''
+        anvi-import-collection -c {input.contigs_db} -p {input.profile_db} -C metabat2 --contigs-mode {input.stb} 
+        touch {output.done}
+        '''
