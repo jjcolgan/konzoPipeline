@@ -96,8 +96,8 @@ rule align:
         bowtieAlignment='04_MG_ALIGNED/logs/{sample}Alignment.err',
         bowtieAlignmentOut='04_MG_ALIGNED/logs/{sample}Alignment.out'
     output:
-        sam=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.sam'),
-        bam='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.bam'
+        sam=temp('04_MG_ALIGNED/{sample}MgAligned.sam'),
+        bam='04_MG_ALIGNED/{sample}MgAligned.bam'
     params:
         index = '03_indexes/{sample}'
     threads: 4
@@ -131,12 +131,12 @@ rule filter:
     conda:
         'biobakery3'
     input:
-        bam=temporary('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}MgAligned.bam')
+        bam=temporary('04_MG_ALIGNED/{sample}MgAligned.bam')
     output:
-        filtered='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}mapped.bam'
+        filtered='04_MG_ALIGNED/{sample}mapped.bam'
     log:
-        filterLog='04_MG_ALIGNED/logs/{sample,[\d\w]+_[\d\wy]+}Filter.log',
-        filterError='04_MG_ALIGNED/logs/{sample,[\d\w]+_[\d\wy]+}Filter.err'
+        filterLog='04_MG_ALIGNED/logs/{sample}Filter.log',
+        filterError='04_MG_ALIGNED/logs/{sample}Filter.err'
 
     shell:
         """
@@ -155,12 +155,12 @@ rule sort:
     conda:
         'biobakery3'
     input:
-        filtered=temp('04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}mapped.bam')
+        filtered=temp('04_MG_ALIGNED/{sample}mapped.bam')
     output:
-        sorted='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam'
+        sorted='04_MG_ALIGNED/{sample}Sorted.bam'
     log:
-        out = '04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.log',
-        err ='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.err'
+        out = '04_MG_ALIGNED/{sample}Sorted.log',
+        err ='04_MG_ALIGNED/{sample}Sorted.err'
     shell:
         """
         samtools sort {input.filtered} -o {output.sorted} > {log.out} 2> {log.err}
@@ -177,7 +177,7 @@ rule index_bam_konzo:
     conda:
         'biobakery3'
     input:
-        sorted='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam'
+        sorted='04_MG_ALIGNED/{sample}Sorted.bam'
     output:
         indexedDone='04_MG_ALIGNED/{sample}_index.done'
     log:
@@ -365,7 +365,7 @@ rule profile:
     input:
         indexedDone = '04_MG_ALIGNED/{sample}_index.done',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db',
-        bam='04_MG_ALIGNED/{sample,[\d\w]+_[\d\wy]+}Sorted.bam'
+        bam='04_MG_ALIGNED/{sample}Sorted.bam'
     log:
         out='06_MG_PROFILES/{sample}Profile.log',
         error='06_MG_PROFILES/{sample}Profile.err'
