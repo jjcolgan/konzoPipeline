@@ -269,6 +269,7 @@ rule hmms:
         -T {threads} \
         --just-do-it \
         > {log.hmmsLog} 2> {log.sampleHmms}
+        touch {output}
         '''
 rule kegg:
     resources:
