@@ -450,7 +450,7 @@ rule exportContigCoverages:
         profile_db = '06_MG_PROFILES/{sample}/PROFILE.db',
         contigs_db='05_CONTIGS_DB/{sample}/contigs.db'
     params:
-        dir = '09_COVERAGES/{sample}'
+        dir = '07_COVERAGES/{sample}'
 
     output:
         coverages = '07_COVERAGES/{sample}/coverageOutput-COVs.txt',
