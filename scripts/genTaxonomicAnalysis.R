@@ -1,5 +1,6 @@
 library(vegan)
 library(ggpubr)
+library(tidyverse)
 
 'Function to filter the SCGs in a manner similar to 16S studies
 Accepts an numceric for the min abundance in each sample, and a
@@ -196,6 +197,10 @@ wrapper = function(taxonomy, metadata){
     # Call the jaccard function with the current column name as comparison
     jaccard(longFull = longfilteredAndNormalizedTaxa, comparison = col_name, meta = metadata, path = path)
   }
+  for (col_name in col_names) {
+    # Call the jaccard function with the current column name as comparison
+    bray(longFull = longfilteredAndNormalizedTaxa, comparison = col_name, meta = metadata, path = path)
+  }
 }
 
 metadata=read_csv('/Users/johnjamescolgan/Downloads/Konzo_Metagenomics_2021_Meta (2).csv')
@@ -206,9 +211,3 @@ for (level in levels){
   wrapper(level, metadata=metadata)
 }
 
-# Get column names excluding the specified columns
-col_names <- colnames(metadata)[!colnames(metadata) %in% exclude_columns]
-for (col_name in col_names) {
-  # Call the jaccard function with the current column name as comparison
-  jaccard(longFull = testFull, comparison = col_name, meta = metadata)
-}
