@@ -181,7 +181,7 @@ wrapper = function(taxonomy, metadata){
   input=read_tsv(file)
   path = paste0('plots/',taxonomy)
   dir.create(path)
-  filterdAndNormalizedTaxTab=filterAndNorm(rawTaxTab =input, a = 5, p = 15)
+  filterdAndNormalizedTaxTab=filterAndNorm(rawTaxTab =input, a = 10, p = 29)
   longfilteredAndNormalizedTaxa=pivotMergeMeta(filterdAndNormalizedTaxTab, metadata = metadata)
   stackedAreaChart(longFull=longfilteredAndNormalizedTaxa, facet = 'Location', path =path)
   stackedAreaChart(longFull=longfilteredAndNormalizedTaxa, facet = 'Status', path =path)

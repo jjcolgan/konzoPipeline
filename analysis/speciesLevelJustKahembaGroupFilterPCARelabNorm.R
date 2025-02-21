@@ -21,6 +21,15 @@ meta = meta %>%
 
 taxaData = read_tsv('08_TAXONOMY/taxonomyResults-t_species-MATRIX.txt')
 
+taxaData %>%
+  column_to_rownames('taxon')%>%
+  colSums()%>%
+  view()
+taxaData %>%
+  column_to_rownames('taxon')%>%
+  rowSums()%>%
+  view()
+
 taxaDataLong=taxaData %>%
   pivot_longer(cols = c(2:293),
                names_to = 'sample',
