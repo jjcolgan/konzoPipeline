@@ -273,7 +273,7 @@ rule hmms:
         '''
 rule kegg:
     resources:
-        mem_mb=25000,
+        mem_mb=30000,
         tasks=8,
         time='10h',
         nodes=1,
@@ -464,7 +464,7 @@ rule exportContigCoverages:
         -c {input.contigs_db} \
         -p {input.profile_db} \
         -o {params.dir} \
-        -O coverageOutput
+        -O coverageOutput \
         --report-contigs --use-Q2Q3-coverages > {log.out} 2> {log.err}
         """
 rule genDepth:
@@ -483,8 +483,7 @@ rule genDepth:
         depth='07_COVERAGES{sample}/depth'
     shell:
         """
-        jgi_summarize_bam_contig_depths -outputDepth {output.depth} \
-        {input.bam}
+        jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bam}
         """
 
 rule metabat2:
