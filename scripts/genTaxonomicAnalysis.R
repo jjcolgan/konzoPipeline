@@ -1,6 +1,7 @@
 library(vegan)
 library(ggpubr)
 library(tidyverse)
+library(ggpubr)
 
 'Function to filter the SCGs in a manner similar to 16S studies
 Accepts an numceric for the min abundance in each sample, and a
@@ -141,8 +142,10 @@ bray = function(longFull, comparison, meta,path){
     labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
          y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
          title = paste("Bray PCoA", comparison),
-         caption = paste('P = ', adonisRes$`Pr(>F)`))
-  ggsave(filename = paste0(path,'/','bray', comparison,'.pdf'), plot = p,width = 8, height = 6, units = 'in')
+         caption = paste('P = ', adonisRes$`Pr(>F)`))+
+      stat_stars(alpha = .15)+
+    stat_ellipse()
+  ggsave(filename = paste0(path,'/','brayStarAndElipse', comparison,'.pdf'), plot = p,width = 8, height = 6, units = 'in')
   return(p)
 }
 
@@ -169,11 +172,13 @@ jaccard = function(longFull, comparison, meta,path){
                y = V2,
                col = .data[[comparison]]))+
     geom_point()+
+    stat_ellipse()+
+    stat_stars(alpha = .15)+
     labs(x = paste0('PC1 - ', pcoaOut$eig[1]/totalvar),
          y = paste0('PC2 - ', pcoaOut$eig[2]/totalvar),
          title = paste("Jaccard PCoA", comparison),
          caption = paste('P = ', adonisRes$`Pr(>F)`))
-  ggsave(filename = paste0(path,'/','jaccard', comparison,'.pdf'), plot = p,width = 8, height = 6, units = 'in')
+  ggsave(filename = paste0(path,'/','jaccardStarsAndElipse', comparison,'.pdf'), plot = p,width = 8, height = 6, units = 'in')
   return(p)
 }
 wrapper = function(taxonomy, metadata){
@@ -181,6 +186,11 @@ wrapper = function(taxonomy, metadata){
   input=read_tsv(file)
   path = paste0('plots/',taxonomy)
   dir.create(path)
+  #addint this so i can just filter the metadata and use that to determine what samples are being processed
+  input <- input %>%
+    column_to_rownames('taxon')%>%
+    select(any_of(metadata$Sample))%>%
+    rownames_to_column('taxon')
   filterdAndNormalizedTaxTab=filterAndNorm(rawTaxTab =input, a = 10, p = 29)
   longfilteredAndNormalizedTaxa=pivotMergeMeta(filterdAndNormalizedTaxTab, metadata = metadata)
   stackedAreaChart(longFull=longfilteredAndNormalizedTaxa, facet = 'Location', path =path)
@@ -207,6 +217,8 @@ metadata=read_csv('/Users/johnjamescolgan/Downloads/Konzo_Metagenomics_2021_Meta
 exclude_columns <- c("Sample", "Number", "Total Elution Volume", "Sample_ID", "Seq_ID", "Stage","Age_T0", "Discordant")
 levels = c('phylum', 'class', 'order', 'family', 'genus', 'species')
 
+
+metadata
 for (level in levels){
   wrapper(level, metadata=metadata)
 }

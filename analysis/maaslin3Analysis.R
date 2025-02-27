@@ -16,8 +16,17 @@ phylumLevel = phylumLevel%>%
 maaslin3(
   input_data = phylumLevel,
   input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/phylum/maaslin3Res",
-  formula = '~ Status + Sex+readCounts',
+  formula = '~ Status +(1|Family)+readCounts',
+  reference = c("Status,Unaffected"))
+
+maaslin3(
+  input_data = phylumLevel,
+  input_metadata = metadata,
+  min_prevalence = .1,
+  output = "plots/phylum/maaslin3ResInteraction",
+  formula = '~ Status*(1|Family)+readCounts',
   reference = c("Status,Unaffected"))
 
 classLevel = read_tsv('08_TAXONOMY/taxonomyResults-t_class-MATRIX.txt')
@@ -27,8 +36,9 @@ classLevel = classLevel%>%
 maaslin3(
   input_data = classLevel,
   input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/class/maaslin3Res",
-  formula = '~ Status+Sex+readCounts',
+  formula = '~ Status +(1|Family)+readCounts',
   reference = c("Status,Unaffected"))
 
 orderLevel = read_tsv('08_TAXONOMY/taxonomyResults-t_order-MATRIX.txt')
@@ -38,8 +48,9 @@ orderLevel = orderLevel%>%
 maaslin3(
   input_data = orderLevel,
   input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/order/maaslin3Res",
-  formula = '~ Status+Sex+readCounts',
+  formula = '~ Status +(1|Family)+readCounts',
   reference = c("Status,Unaffected"))
 
 familyLevel = read_tsv('08_TAXONOMY/taxonomyResults-t_family-MATRIX.txt')
@@ -50,11 +61,22 @@ maaslin3(
   input_data = familyLevel,
   input_metadata = metadata,
   output = "plots/family/maaslin3Res",
-  formula = '~ Status+Sex+readCounts',
+  formula = '~ Status +(1|Family)+readCounts',
   reference = c("Status,Unaffected"))
-maaslin3(
+
+fit=maaslin3(
   input_data = familyLevel,
   input_metadata = metadata,
+  output = "plots/family/maaslin3ResFamily",
+  formula = '~ Status*(1|Family)+readCounts',
+  reference = c("Status,Unaffected"))
+
+fit$fit_data_abundance
+
+ maaslin3(
+  input_data = familyLevel,
+  input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/family/maaslin3ResStage",
   formula = '~ Stage+readCounts+(1|Family)',
   reference = c("Status,Unaffected"))
@@ -66,13 +88,15 @@ genusLevel = genusLevel%>%
 maaslin3(
   input_data = genusLevel,
   input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/genus/maaslin3Res",
-  formula = '~ Status+Sex+readCounts',
+  formula = '~ Status+readCounts+(1|Family)',
   reference = c("Status,Unaffected"))
 
 maaslin3(
   input_data = genusLevel,
   input_metadata = metadata,
+  min_prevalence = .1,
   output = "plots/genus/maaslin3ResStage",
   formula = '~ Stage+readCounts+(1|Family)',
   reference = c("Status,Unaffected"))
@@ -83,7 +107,8 @@ speciesLevel = speciesLevel%>%
   as.data.frame()
 maaslin3(
   input_data = speciesLevel,
-  cores = 4,
+  cores = 1,
+  min_prevalence = .1,
   input_metadata = metadata,
   output = "plots/species/maaslin3Res",
   formula = '~ Status+readCounts+(1|Family)',
