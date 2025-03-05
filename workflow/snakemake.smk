@@ -489,7 +489,7 @@ rule genDepth:
 rule metabat2:
     resources:
         cpus_per_task=10,
-        mem_mb=4000,
+        mem_mb=12000,
         tasks=1,
         time='15h',
         nodes=1,
