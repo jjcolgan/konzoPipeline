@@ -273,8 +273,8 @@ rule hmms:
         '''
 rule kegg:
     resources:
-        mem_mb=30000,
-        tasks=8,
+        mem_mb=32000,
+        tasks=12,
         time='10h',
         nodes=1,
         account='pi-blekhman',
