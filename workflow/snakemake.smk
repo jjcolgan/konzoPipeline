@@ -562,3 +562,31 @@ rule importCollection:
         anvi-import-collection -c {input.contigs_db} -p {input.profile_db} -C metabat2 --contigs-mode {input.stb} 
         touch {output.done}
         '''
+
+rule guncQc:
+    resources:
+        cpus_per_task=1,
+        mem_mb=12000,
+        tasks=4,
+        time='15h',
+        nodes=1,
+        account='pi-blekhman'
+    conda:
+        'gunc'
+    input:
+        done='05_CONTIGS_DB/{sample}/importBins.done'
+    params:
+        dir='10_BINNING/{sample}'
+    output:
+        '10_BINNING/{sample}/gunc/{sample}.done'
+    shell:
+        """
+        gunc run --db_file /project/blekhman/shared/gunc/gunc_db_progenomes2.1.dmnd \
+        --input_dir {params.dir} \
+        --out_dir {params.dir} 
+        touch {output}
+        """
+
+
+
+
